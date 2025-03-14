@@ -1,0 +1,31 @@
+dnsconf:
+    - name: ""
+      ipv4:
+        enable: false
+        gettype: url
+        url: https://myip4.ipip.net, https://ddns.oray.com/checkip, https://ip.3322.net
+        netinterface: br-lan
+        cmd: ""
+        domains: {{ ddns_config.ipv4.domains | to_yaml }}
+      ipv6:
+        enable: true
+        gettype: url
+        url: https://myip6.ipip.net, https://speed.neu6.edu.cn/getIP.php, https://v6.ident.me
+        netinterface: eth0
+        cmd: ""
+        ipv6reg: ""
+        domains: {{ ddns_config.ipv6.domains | to_yaml }}
+      dns:
+        name: cloudflare
+        id: ""
+        secret: Fl3w70FUe0bmKbM7cayKYpEdSHeyaBDB9UNHOILJ
+      ttl: "60"
+user:
+    username: mxuan
+    password: $2a$10$G.XpPI1RUqvnR5BEUuDnPu.aizDDjINGp9YxFr7dySYCKJ2lQ3/MC
+webhook:
+    webhookurl: ""
+    webhookrequestbody: ""
+    webhookheaders: ""
+notallowwanaccess: true
+lang: zh

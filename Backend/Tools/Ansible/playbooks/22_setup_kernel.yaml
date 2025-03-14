@@ -1,0 +1,65 @@
+---
+- name: Setup BBR Plus Kernel
+  hosts: tunnel
+  become: yes
+  vars:
+    script_dir: /opt/setup/scripts
+    kernel_option: "67"  # 选择安装 BBR Plus 内核 6.6 LTS, UJX6N 编译
+    
+  tasks:
+    - name: Ensure required packages are installed
+      apt:
+        name:
+          - python3-pip
+          - python3-pexpect
+          - wget
+        state: present
+        update_cache: yes
+        
+    - name: Create script directory
+      file:
+        path: "{{ script_dir }}"
+        state: directory
+        mode: '0755'
+        
+    - name: Copy kernel installation script
+      copy:
+        src: ../resources/install_kernel.sh
+        dest: "{{ script_dir }}/install_kernel.sh"
+        mode: '0755'
+
+    - name: Copy kernel setup script
+      copy:
+        src: ../kernel_setup.py
+        dest: "{{ script_dir }}/kernel_setup.py"
+        mode: '0755'
+
+    - name: Create expect script for kernel installation
+      blockinfile:
+        path: "{{ script_dir }}/kernel_setup.py"
+        create: yes
+        mode: '0755'
+        
+    - name: Check and delete language setting file
+      file:
+        path: "/root/language_setting_v2ray_trojan.md"
+        state: absent
+      ignore_errors: yes  # 如果文件不存在也不会报错
+
+    - name: Run kernel installation script in background
+      command: python3 {{ script_dir }}/kernel_setup.py
+      async: 3600  # 最大执行时间（秒）
+      poll: 30     # 每30秒检查一次状态
+      register: setup_result
+
+    - name: Wait for kernel installation
+      async_status:
+        jid: "{{ setup_result.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 120  # 重试次数
+      delay: 30     # 每次重试间隔（秒）
+      
+    - name: Display setup result
+      debug:
+        var: setup_result.stdout_lines

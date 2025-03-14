@@ -1,0 +1,12 @@
+[common]
+bind_port = {{ frps_bind_port | default(7000) }}
+token = {{ vault_frps_token }}
+
+dashboard_port = {{ frps_dashboard_port | default(7500) }}
+dashboard_user = {{ frps_dashboard_user | default('admin') }}
+dashboard_pwd = {{ vault_frps_dashboard_password }}
+
+# 启用详细日志
+log_file = /var/log/frps.log
+log_level = info
+log_max_days = 3

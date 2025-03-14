@@ -1,0 +1,18 @@
+[common]
+server_addr = {{ frps_server_addr }}
+server_port = {{ frps_bind_port | default(7000) }}
+token = {{ vault_frps_token }}
+
+# 日志配置
+log_file = /var/log/frpc.log
+log_level = info
+log_max_days = 3
+
+{% for proxy in frpc_proxies %}
+[{{ proxy.name }}]
+type = {{ proxy.type }}
+local_ip = {{ proxy.local_ip | default('127.0.0.1') }}
+local_port = {{ proxy.local_port }}
+remote_port = {{ proxy.remote_port }}
+{% endfor %}
+

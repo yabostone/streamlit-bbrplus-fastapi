@@ -1,0 +1,37 @@
+---
+- hosts: tunnel
+  become: yes
+  tasks:
+    - name: 创建DDNS-GO配置目录
+      file:
+        path: /opt/ddns-go
+        state: directory
+        mode: '0755'
+
+    - name: 拉取DDNS-GO镜像
+      docker_image:
+        name: jeessy/ddns-go
+        source: pull
+
+    - name: 运行DDNS-GO容器
+      docker_container:
+        name: ddns-go
+        image: jeessy/ddns-go
+        state: started
+        restart_policy: always
+        network_mode: host
+        volumes:
+          - /opt/ddns-go:/root
+
+    - name: 配置DDNS-GO
+      template:
+        src: ddns-go-config.yaml.j2
+        dest: /opt/ddns-go/ddns-go-config.yaml
+        mode: '0644'
+      notify: restart ddns-go
+
+  handlers:
+    - name: restart ddns-go
+      docker_container:
+        name: ddns-go
+        restart: yes

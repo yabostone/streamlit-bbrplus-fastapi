@@ -1,0 +1,22 @@
+---
+- hosts: tunnel
+  become: yes
+  tasks:
+    - name: 安装V2Ray
+      apt:
+        name: v2ray
+        state: present
+
+    - name: 拉取v2ray镜像
+      docker_image:
+        name: jrohy/v2ray
+        source: pull
+
+    - name: 运行v2ray容器
+      docker_container:
+        name: v2ray
+        image: jrohy/v2ray
+        state: started
+        privileged: yes
+        restart_policy: always
+        network_mode: host

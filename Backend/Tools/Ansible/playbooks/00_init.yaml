@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  become: yes
+  become_method: sudo
+  vars:
+    ansible_sudo_pass: "EMail.77521"  # 添加这行
+  tasks:
+    - name: 更新apt包索引
+      apt:
+        update_cache: yes
+      
+    - name: 安装sshpass
+      apt:
+        name: sshpass
+        state: present

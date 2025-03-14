@@ -1,0 +1,14 @@
+ddns_config:
+  ipv4:
+    domains:
+      - "{{ inventory_hostname }}.v4.dlink.bid"
+      - "{{ inventory_hostname }}.v4.zvim.win"
+  ipv6:
+    domains:
+      - "{{ inventory_hostname }}.v6.dlink.bid"
+      - "{{ inventory_hostname }}.v6.zvim.win"
+  cloudflare:
+    secret: "Fl3w70FUe0bmKbM7cayKYpEdSHeyaBDB9UNHOILJ"
+  user:
+    username: "mxuan"
+    password: "$2a$10$G.XpPI1RUqvnR5BEUuDnPu.aizDDjINGp9YxFr7dySYCKJ2lQ3/MC"

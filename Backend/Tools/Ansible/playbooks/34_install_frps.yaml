@@ -1,0 +1,49 @@
+---
+- hosts: frps_servers
+  become: yes
+  tasks:
+    - name: 创建 frp 目录
+      file:
+        path: /opt/frp
+        state: directory
+        mode: '0755'
+
+    - name: 下载并解压 frp
+      unarchive:
+        src: https://github.com/fatedier/frp/releases/download/v0.51.3/frp_0.51.3_linux_amd64.tar.gz
+        dest: /opt/frp
+        remote_src: yes
+        creates: /opt/frp/frp_0.51.3_linux_amd64
+        
+    - name: 创建符号链接
+      file:
+        src: /opt/frp/frp_0.51.3_linux_amd64
+        dest: /opt/frp/current
+        state: link
+
+    - name: 配置 frps.ini
+      template:
+        src: frps.ini.j2
+        dest: /opt/frp/current/frps.ini
+        mode: '0644'
+      notify: restart frps
+
+    - name: 配置 systemd 服务
+      template:
+        src: frps.service.j2
+        dest: /etc/systemd/system/frps.service
+        mode: '0644'
+      notify: restart frps
+
+    - name: 启动并启用 frps 服务
+      systemd:
+        name: frps
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+  handlers:
+    - name: restart frps
+      systemd:
+        name: frps
+        state: restarted

@@ -1,0 +1,77 @@
+---
+- hosts: tunnel
+  become: yes
+  tasks:
+    - name: 更新apt包索引
+      apt:
+        update_cache: yes
+        
+    - name: 安装依赖包
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: 安装Python依赖包
+      apt:
+        name:
+          - python3-pip
+          - python3-setuptools
+        state: present
+
+
+    # 移除旧的Docker GPG密钥和仓库（如果存在）
+    - name: 移除旧的Docker GPG密钥
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: absent
+      ignore_errors: yes
+
+    - name: 移除旧的Docker仓库
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: absent
+      ignore_errors: yes
+
+    # 添加阿里云Docker镜像源
+    - name: 添加阿里云Docker GPG密钥
+      apt_key:
+        url: https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
+        state: present
+
+    - name: 添加阿里云Docker仓库
+      apt_repository:
+        repo: deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu focal stable
+        state: present
+
+    - name: 安装Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    # 配置Docker镜像加速
+    - name: 创建Docker daemon.json配置目录
+      file:
+        path: /etc/docker
+        state: directory
+
+    - name: 配置Docker镜像加速器
+      copy:
+        content: |
+          {
+            "registry-mirrors": [
+              "https://dockerproxy.net"
+            ]
+          }
+        dest: /etc/docker/daemon.json
+
+    - name: 重启Docker服务
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+
