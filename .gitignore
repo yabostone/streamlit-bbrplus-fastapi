@@ -2,3 +2,5 @@ venv/
 *.tfvars
 .terraform/
 *.gpg
+*.tfstats
+*.pyc
