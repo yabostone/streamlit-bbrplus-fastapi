@@ -4,3 +4,5 @@ venv/
 *.gpg
 *.tfstats
 *.pyc
+# .env 去掉可能的环境，涉及到sk
+.env
