@@ -11,4 +11,18 @@ Gigs
 基建使用FastAPI和Ansible等多个工具。并且部分的ansible的可以使用flow的方式实现。
 
 还在更新中。
+更新了代码中展示页面的图片，包括前端streamlit，后端的fastapi。在Doc文件夹下面。
+
+
+## 云厂商注意流量哟。
+
+## IP更换的特殊功能，单独来写Flow的流程来实现。
+
+### 支持windows的开发环境的创建！
+
+### 支持Linux的VS的SSH的环境的创建
+
+### 例如streamlit的开发环境初始化
+
+
 

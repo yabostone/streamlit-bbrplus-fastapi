@@ -39,6 +39,9 @@ class VMInfo(BaseModel):
 class PingResponse(BaseModel):
     reachable: bool
 
+class StatusResponse(BaseModel):
+    status: str
+
 def run_command(command):
     """运行 shell 命令并返回输出、错误和返回码"""
     try:
@@ -113,6 +116,36 @@ async def create_vm(vm_request: VMCreateRequest):
         if count >= 15:
             break
 
+@app.post("/openstack/terraform/destroy_vm/", response_model=StatusResponse)
+async def destroy_vm(vm_request: VMCreateRequest):
+    """创建 OpenStack 虚拟机并返回 IP 地址，使用 Terraform"""
+    # 切换到包含 openstack.tf 的目录
+    os.chdir("./ramnode")
+
+    # 初始化 Terraform (如果需要)
+    init_stdout, init_stderr, init_returncode = run_command("terraform init")
+    if init_returncode != 0:
+        raise HTTPException(status_code=500, detail=f"Terraform 初始化失败: {init_stderr}")
+    plan_command = (
+        f"terraform plan  "
+        f" -var-file=openstack.tfvars  "
+        )
+
+    # 使用传入的参数构建 apply 命令
+    apply_command = (
+        f"terraform destroy -auto-approve "
+        f" -var-file=openstack.tfvars  "
+    )
+    plan_stdout, plan_stderr , plan_returncode = run_command(plan_command)
+    apply_stdout, apply_stderr, apply_returncode = run_command(apply_command)
+
+    if apply_returncode != 0:
+        raise HTTPException(status_code=500, detail=f"Terraform 应用失败: {apply_stderr}")
+
+    return "success"
+
+
+
 @app.post("/openstack/create_vm/", response_model=IPResponse)
 async def create_vm(vm_request: VMCreateRequest):
     """创建 OpenStack 虚拟机并返回 IP 地址，，，目前的环境问题，先放一下"""
@@ -145,9 +178,8 @@ async def create_vm(vm_request: VMCreateRequest):
 
     raise HTTPException(status_code=500, detail="无法获取虚拟机 IP 地址")
 
-@app.post("/ansible/gen_inventory/",response_model=InventoryResponse)
-## 不使用jinja，和template，然后在api中直接生成inventory_ini的信息
-## 这里的内容需要有输入，输入就是ConnectionResponse
+
+
 @app.post("/ansible/gen_inventory/",response_model=InventoryResponse)
 ## 不使用jinja，和template，然后在api中直接生成inventory_ini的信息
 ## 这里的内容需要有输入，输入就是ConnectionResponse
