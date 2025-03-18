@@ -6,3 +6,5 @@ venv/
 *.pyc
 # .env 去掉可能的环境，涉及到sk
 .env
+# 去掉带sk的scw.bat
+scw.bat
