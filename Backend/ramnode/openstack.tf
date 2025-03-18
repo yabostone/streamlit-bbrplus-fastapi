@@ -64,8 +64,8 @@ variable "openstack_region" {
   type        = string
 }
 
-# 生成随机密码
-resource "random_string" "password" {
+# 方法一：使用固定种子生成确定性随机密码
+resource "random_string" "password0" {
   length  = 12
   special = false
   upper   = true
@@ -73,15 +73,16 @@ resource "random_string" "password" {
   numeric = true
 }
 
+
 # 创建 OpenStack 实例
 resource "openstack_compute_instance_v2" "instance" {
   name            = "openstack-instance"
-  image_id        = "c240700e-311a-46a1-9362-87191e709334"  # 需要替换为实际的镜像ID
+  image_id        = "c240700e-311a-46a1-9362-87191e709334"  # 需要替换为实际的镜像ID, 现在是24.04，兼容性高
   flavor_id       = "0bf3ee53-4f19-4a44-84a2-556dcf549362"  # 需要替换为实际的配置ID  MKVM  de66d027-1845-4f3e-9128-20d252dbf48a
   # 1G SKVM 0bf3ee53-4f19-4a44-84a2-556dcf549362   512MB 255c765c-23fb-4fd8-879a-83efff782776  SKVM
   # 1G MKVM e9ec0a3c-7dd0-4cf8-8668-3486050307f6
-  admin_pass      = random_string.password.result
-  
+  admin_pass      = random_string.password0.result
+  #admin_pass = "tAAKHGJ8TgOi9"
   # 安全设置
   security_groups = ["all"]
 }
@@ -114,7 +115,7 @@ output "instance_username" {
 }
 
 output "instance_password" {
-  value     = random_string.password.result
+  value     = random_string.password0.result
   sensitive = true
   description = "实例的管理员密码"
 }
@@ -124,7 +125,7 @@ output "connection_info" {
     ipv4     = openstack_compute_instance_v2.instance.access_ip_v4
     ipv6     = openstack_compute_instance_v2.instance.access_ip_v6
     username = "root"  # 根据实际镜像调整
-    password = random_string.password.result
+    password = random_string.password0.result
   }
   sensitive = true
   description = "实例的完整连接信息"

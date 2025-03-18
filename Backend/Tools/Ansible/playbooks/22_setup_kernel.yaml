@@ -7,6 +7,23 @@
     kernel_option: "67"  # 选择安装 BBR Plus 内核 6.6 LTS, UJX6N 编译
     
   tasks:
+    - name: Check for language settings file
+      stat:
+        path: /root/language_setting_v2ray_trojan.md
+      register: lang_file
+      changed_when: false  # 纯检查操作不触发变更
+      tags: cleanup
+
+    - name: Remove obsolete language settings file
+      file:
+        path: /root/language_setting_v2ray_trojan.md
+        state: absent
+      when: lang_file.stat.exists  # 仅在文件存在时执行
+      become: true
+      tags: cleanup
+
+
+
     - name: Ensure required packages are installed
       apt:
         name:
@@ -59,7 +76,10 @@
       until: job_result.finished
       retries: 120  # 重试次数
       delay: 30     # 每次重试间隔（秒）
-      
+      ignore_errors: yes
+    
+### 这里的没有自动重启，需要判断后自动重启
+
     - name: Display setup result
       debug:
         var: setup_result.stdout_lines
